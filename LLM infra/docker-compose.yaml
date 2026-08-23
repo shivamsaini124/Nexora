@@ -1,0 +1,67 @@
+services:
+  coding:
+    image: vllm/vllm-openai:latest
+    container_name: llm-coding
+    runtime: nvidia
+    ports:
+      - "8000:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ipc: host
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+    command:
+      - --model
+      - Qwen/Qwen2.5-Coder-0.5B-Instruct-GPTQ-Int4
+      - --max-model-len
+      - "2048"
+      - --max-num-seqs
+      - "1"
+      - --max-num-batched-tokens
+      - "2048"
+      - --gpu-memory-utilization
+      - "0.45"
+      - --enforce-eager
+      - --kv-cache-dtype
+      - fp8
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  general:
+    image: vllm/vllm-openai:latest
+    container_name: llm-general
+    runtime: nvidia
+    ports:
+      - "8001:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ipc: host
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+    command:
+      - --model
+      - JunHowie/Qwen3-0.6B-GPTQ-Int4
+      - --max-model-len
+      - "2048"
+      - --max-num-seqs
+      - "1"
+      - --max-num-batched-tokens
+      - "2048"
+      - --gpu-memory-utilization
+      - "0.45"
+      - --enforce-eager
+      - --kv-cache-dtype
+      - fp8
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
