@@ -1,6 +1,15 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
+
+# import os
+# from dotenv import load_dotenv
+# load_dotenv()
+# connectionString = os.getenv("DATABASE_URL")
 
 def connectPostgres(connectionString):
     engine = create_engine(connectionString)
-    return Session(engine, autocommit=False, autoflush=False)
+    sessionLocal =  sessionmaker(
+        bind=engine, 
+        autocommit=False, autoflush=False
+    )
+    return engine, sessionLocal
