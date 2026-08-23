@@ -37,10 +37,28 @@ class Document(Base):
     __tablename__ = "documents"
 
     docId: Mapped[int] = mapped_column(primary_key=True, index=True)
-    chatId: Mapped[int] = mapped_column(ForeignKey("chats.chatId"), nullable=False)
+    fileName: Mapped[str] = mapped_column(String(255), nullable=False)
+    fileType: Mapped[str] = mapped_column(String(100), nullable=False)
+    fileSize: Mapped[int] = mapped_column(nullable=False)
+    fileHash: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    uploadedAt: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
 
     def __repr__(self) -> str:
-        return f"Document(docId={self.docId!r}, chatId={self.chatId!r})"
+        return f"Document(docId={self.docId!r}, fileName={self.fileName!r})"
+
+
+class ChatDocument(Base):
+    __tablename__ = "chat_documents"
+
+    chatId: Mapped[int] = mapped_column(ForeignKey("chats.chatId"), primary_key=True)
+    docId: Mapped[int] = mapped_column(ForeignKey("documents.docId"), primary_key=True)
+
+    def __repr__(self) -> str:
+        return f"ChatDocument(chatId={self.chatId!r}, docId={self.docId!r})"
 
 
 class Message(Base):
