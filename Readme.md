@@ -22,3 +22,14 @@ The **Prompt Generator** converts the selected context and the user's request in
 ### Memory Extractor
 
 The **Memory Extractor** analyzes the completed user-assistant conversation to identify information that may be useful in future interactions, such as user preferences, project facts, important decisions, or persistent requirements. Only relevant information is extracted and converted into memory records, which are then embedded and stored in the vector database for future semantic retrieval, while ordinary or temporary conversation is discarded.
+
+
+# NOTE: We are only supporting documents as attachments for now
+
+
+
+### Procedure to run:
+run start_backend.sh script
+
+./start_backend.sh
+
