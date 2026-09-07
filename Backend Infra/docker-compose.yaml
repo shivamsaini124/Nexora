@@ -1,12 +1,7 @@
 services:
-
   memory:
-
     image: vllm/vllm-openai:latest
-
     container_name: llm-memory
-
-    runtime: nvidia
 
     ports:
       - "8003:8000"
@@ -20,37 +15,11 @@ services:
       - HF_TOKEN=${HF_TOKEN}
 
     command:
-
       - --model
       - Qwen/Qwen2.5-0.5B-Instruct
-
       - --max-model-len
       - "12288"
-
       - --max-num-seqs
       - "1"
-
       - --max-num-batched-tokens
       - "12288"
-
-      - --gpu-memory-utilization
-      - "0.80"
-
-      - --enforce-eager
-
-      - --kv-cache-dtype
-      - fp8
-
-    deploy:
-
-      resources:
-
-        reservations:
-
-          devices:
-
-            - driver: nvidia
-
-              count: all
-
-              capabilities: [gpu]
