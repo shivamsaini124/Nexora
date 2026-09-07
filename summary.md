@@ -1,0 +1,9 @@
+# Project Summary
+
+This project is a privacy-first local AI chat backend. It uses FastAPI as the application API, PostgreSQL for users, chats, messages, and document metadata, Qdrant for semantic document and memory vectors, Sentence Transformers for embeddings, Joblib Logistic Regression for lightweight intent classification, Mem0 for long-term memory management, and local vLLM services for response generation.
+
+A request is preprocessed before generation. The intent classifier embeds the current prompt with `BAAI/bge-large-en`, applies the Joblib Logistic Regression model in `Backend/models/intent_classifier.pkl`, and returns a fine-grained intent and confidence. The result routes `coding.*` requests to the coding model on port `8000`, other requests to the general model on port `8001`, and selects deterministic intent-specific instructions in `PromptGenerator`. No model is used to generate the prompt. `MemoryService` passes only the current user prompt to Mem0 and the local memory model on port `8003`. The resulting memories, recent conversation, and relevant document chunks are assembled by `ContextBuilder`, converted into model messages, and sent to the selected local LLM. The exchange is then stored in PostgreSQL.
+
+The V1 system supports text chat and document attachments. Documents are hashed, parsed, chunked, embedded, and stored in Qdrant with PostgreSQL metadata. The application is designed around small, replaceable services so future work can add stronger models or compute-aware routing without changing the core API. Authentication, migrations, production authorization, richer document parsing, and advanced model scheduling remain future work.
+
+Start the database services with `Database Infra/docker-compose.yaml`, start the model services with `LLM infra/docker-compose.yaml`, configure `.env`, and run `./start_backend.sh` from the repository root.

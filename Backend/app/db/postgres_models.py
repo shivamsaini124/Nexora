@@ -66,12 +66,16 @@ class Message(Base):
 
     messageId: Mapped[int] = mapped_column(primary_key=True, index=True)
     chatId: Mapped[int] = mapped_column(ForeignKey("chats.chatId"), nullable=False)
+    prompt: Mapped[str] = mapped_column(Text, nullable=False)
     dateTime: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
     response: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    intent: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    classifierConfidence: Mapped[Optional[float]] = mapped_column(nullable=True)
+    modelName: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     def __repr__(self) -> str:
         return f"Message(messageId={self.messageId!r}, chatId={self.chatId!r})"

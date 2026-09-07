@@ -9,7 +9,9 @@
 
 ### Classifier
 
-The **Classifier** analyzes the user's current request, along with a small amount of recent conversation when necessary, to determine the type of task being requested, such as coding, reasoning, or general assistance. This classification is used to route the request to the most appropriate specialized LLM, ensuring that each task is handled by a model optimized for that particular type of workload.
+The **Classifier** embeds the user's current request with `BAAI/bge-large-en` and passes the 1024-dimensional vector to the Joblib Logistic Regression model in `Backend/models/intent_classifier.pkl`. It returns a fine-grained intent and confidence, such as `coding.debug`, `coding.review`, `research.investigate`, or `writing.rewrite`.
+
+The classifier output is used twice without another model call: `ModelRouter` sends every `coding.*` intent to the coding LLM on port `8000`, while other intents use the general LLM on port `8001`; `PromptGenerator` selects deterministic intent-specific instructions for the final LLM prompt.
 
 ### Context Builder
 
@@ -17,19 +19,22 @@ The **Context Builder** determines what information is relevant to the current r
 
 ### Prompt Generator
 
-The **Prompt Generator** converts the selected context and the user's request into the structured prompt expected by the LLM. It organizes system instructions, relevant context, previous conversation messages, and the current request into the appropriate chat message format and applies model-specific generation parameters before sending the request to the selected vLLM endpoint.
+The **Prompt Generator** converts the classifier's predicted intent, selected context, and user's request into the structured prompt expected by the LLM. It uses deterministic templates for coding, analysis, documentation, research, and writing intents. It does not call a model to generate or classify the prompt.
 
-### Memory Extractor
+### Memory Service
 
-The **Memory Extractor** analyzes the completed user-assistant conversation to identify information that may be useful in future interactions, such as user preferences, project facts, important decisions, or persistent requirements. Only relevant information is extracted and converted into memory records, which are then embedded and stored in the vector database for future semantic retrieval, while ordinary or temporary conversation is discarded.
+The **Memory Service** processes only the current user input before the main LLM call. It adapts Mem0, which uses the local memory LLM on port `8003` to identify durable preferences, project facts, decisions, and requirements, then manages storage and retrieval in Qdrant. Ordinary or temporary conversation is discarded.
 
 
 # NOTE: We are only supporting documents as attachments for now
 
 
 
-### Procedure to run:
-run start_backend.sh script
+### Procedure to run
 
+Start PostgreSQL and Qdrant with `Database Infra/docker-compose.yaml`, start the coding, general, and memory vLLM services with `LLM infra/docker-compose.yaml`, activate `Backend/.venv`, and run:
+
+```bash
 ./start_backend.sh
+```
 
